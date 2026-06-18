@@ -649,6 +649,11 @@ label {
 
 .simulator-grid {
   grid-template-columns: 1fr 1fr;
+  border-color: color-mix(in srgb, var(--success) 45%, var(--border));
+  background:
+    linear-gradient(180deg, color-mix(in srgb, var(--success-soft) 42%, transparent), transparent),
+    var(--surface);
+  box-shadow: 0 14px 42px rgb(0 0 0 / 0.24);
 }
 
 .fixed-item,
@@ -675,7 +680,7 @@ label {
 .movement-dialog {
   width: min(440px, calc(100% - 20px));
   max-height: min(760px, calc(100dvh - 24px));
-  margin: auto auto 10px;
+  margin: calc(12px + env(safe-area-inset-top)) auto auto;
   border: 1px solid var(--border);
   border-radius: 10px 10px 8px 8px;
   background: var(--surface);
@@ -686,7 +691,7 @@ label {
 .settings-dialog {
   width: min(520px, calc(100% - 20px));
   max-height: min(820px, calc(100dvh - 24px));
-  margin: auto auto 10px;
+  margin: calc(12px + env(safe-area-inset-top)) auto auto;
   border: 1px solid var(--border);
   border-radius: 10px 10px 8px 8px;
   background: var(--surface);
@@ -702,7 +707,7 @@ label {
 .settings-sheet {
   display: grid;
   gap: 14px;
-  max-height: calc(100dvh - 42px);
+  max-height: calc(100dvh - 42px - env(safe-area-inset-top));
   overflow: auto;
   padding: 16px;
 }
@@ -753,6 +758,10 @@ label {
   flex-wrap: wrap;
 }
 
+.data-actions {
+  justify-content: center;
+}
+
 .secondary-action {
   display: inline-flex;
   align-items: center;
@@ -770,6 +779,40 @@ label {
 
 .secondary-action input {
   display: none;
+}
+
+.export-action,
+.import-action {
+  min-width: 138px;
+  color: #07120a;
+}
+
+.export-action {
+  border-color: color-mix(in srgb, var(--success) 65%, transparent);
+  background: var(--success);
+}
+
+.import-action {
+  border-color: color-mix(in srgb, var(--blue) 65%, transparent);
+  background: var(--blue);
+}
+
+:root[data-theme="light"] .export-action,
+:root[data-theme="light"] .import-action {
+  color: #fff;
+}
+
+.settings-footer {
+  position: sticky;
+  bottom: -16px;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+  margin: 2px -16px -16px;
+  border-top: 1px solid var(--border);
+  background: color-mix(in srgb, var(--surface) 96%, transparent);
+  padding: 12px 16px calc(12px + env(safe-area-inset-bottom));
+  backdrop-filter: blur(14px);
 }
 
 .custom-category-list {
@@ -956,6 +999,22 @@ label {
 .bottom-nav button.active {
   background: var(--success-soft);
   color: var(--success);
+}
+
+.bottom-nav button[data-view-target="simulator"] {
+  position: relative;
+  border: 1px solid color-mix(in srgb, var(--success) 32%, transparent);
+  background: color-mix(in srgb, var(--success-soft) 55%, transparent);
+  color: var(--success);
+}
+
+.bottom-nav button[data-view-target="simulator"].active {
+  background: var(--success);
+  color: #07120a;
+}
+
+:root[data-theme="light"] .bottom-nav button[data-view-target="simulator"].active {
+  color: #fff;
 }
 
 .empty {

@@ -65,6 +65,7 @@ let selectedType = "expense";
 let selectedMonth = currentMonthKey();
 let activeView = "dashboard";
 let lastPresetId = "";
+let settingsDraft = null;
 
 const els = {
   views: document.querySelectorAll(".view"),
@@ -123,6 +124,8 @@ const els = {
   settingsBtn: document.querySelector("#settingsBtn"),
   settingsDialog: document.querySelector("#settingsDialog"),
   closeSettings: document.querySelector("#closeSettings"),
+  cancelSettingsBtn: document.querySelector("#cancelSettingsBtn"),
+  saveSettingsBtn: document.querySelector("#saveSettingsBtn"),
   appTitleInput: document.querySelector("#appTitleInput"),
   appSubtitleInput: document.querySelector("#appSubtitleInput"),
   logoInput: document.querySelector("#logoInput"),
@@ -165,18 +168,19 @@ function bindEvents() {
   });
 
   els.settingsBtn.addEventListener("click", () => openSettingsDialog());
-  els.closeSettings.addEventListener("click", () => closeSettingsDialog());
+  els.closeSettings.addEventListener("click", () => cancelSettingsDialog());
+  els.cancelSettingsBtn.addEventListener("click", () => cancelSettingsDialog());
+  els.saveSettingsBtn.addEventListener("click", () => saveSettingsDialog());
   els.settingsDialog.addEventListener("click", (event) => {
-    if (event.target === els.settingsDialog) closeSettingsDialog();
+    if (event.target === els.settingsDialog) cancelSettingsDialog();
   });
 
-  els.appTitleInput.addEventListener("input", saveBrandSettings);
-  els.appSubtitleInput.addEventListener("input", saveBrandSettings);
+  els.appTitleInput.addEventListener("input", updateSettingsDraftFromInputs);
+  els.appSubtitleInput.addEventListener("input", updateSettingsDraftFromInputs);
   els.logoInput.addEventListener("change", handleLogoUpload);
   els.removeLogoBtn.addEventListener("click", () => {
-    state.settings.logoDataUrl = "";
-    saveState();
-    renderBrand();
+    ensureSettingsDraft();
+    settingsDraft.logoDataUrl = "";
     syncSettingsInputs();
   });
 
@@ -291,6 +295,7 @@ function switchView(viewName) {
 }
 
 function openSettingsDialog() {
+  settingsDraft = cloneSettings(state.settings);
   syncSettingsInputs();
   renderCustomCategories();
   if (els.settingsDialog.showModal) {
@@ -301,11 +306,43 @@ function openSettingsDialog() {
 }
 
 function closeSettingsDialog() {
+  settingsDraft = null;
   if (els.settingsDialog.close) {
     els.settingsDialog.close();
   } else {
     els.settingsDialog.removeAttribute("open");
   }
+}
+
+function cancelSettingsDialog() {
+  settingsDraft = null;
+  syncSettingsInputs();
+  renderCustomCategories();
+  closeSettingsDialog();
+}
+
+function saveSettingsDialog() {
+  updateSettingsDraftFromInputs();
+  state.settings = cloneSettings(settingsDraft || state.settings);
+  saveState();
+  render();
+  closeSettingsDialog();
+}
+
+function cloneSettings(settings) {
+  return {
+    theme: settings.theme === "light" ? "light" : "dark",
+    appTitle: settings.appTitle || "Farol",
+    appSubtitle: settings.appSubtitle || "Finan\u00e7as pessoais",
+    logoDataUrl: settings.logoDataUrl || "",
+    customExpenseCategories: sanitizeCategoryList(settings.customExpenseCategories),
+    customIncomeCategories: sanitizeCategoryList(settings.customIncomeCategories),
+  };
+}
+
+function ensureSettingsDraft() {
+  if (!settingsDraft) settingsDraft = cloneSettings(state.settings);
+  return settingsDraft;
 }
 
 function renderBrand() {
@@ -323,19 +360,27 @@ function renderBrand() {
 }
 
 function syncSettingsInputs() {
+  const source = settingsDraft || state.settings;
   if (document.activeElement !== els.appTitleInput) {
-    els.appTitleInput.value = state.settings.appTitle || "Farol";
+    els.appTitleInput.value = source.appTitle || "Farol";
   }
   if (document.activeElement !== els.appSubtitleInput) {
-    els.appSubtitleInput.value = state.settings.appSubtitle || "Finan\u00e7as pessoais";
+    els.appSubtitleInput.value = source.appSubtitle || "Finan\u00e7as pessoais";
   }
+  renderSettingsLogoPreview(source);
 }
 
-function saveBrandSettings() {
-  state.settings.appTitle = els.appTitleInput.value.trim() || "Farol";
-  state.settings.appSubtitle = els.appSubtitleInput.value.trim() || "Finan\u00e7as pessoais";
-  saveState();
-  renderBrand();
+function updateSettingsDraftFromInputs() {
+  const draft = ensureSettingsDraft();
+  draft.appTitle = els.appTitleInput.value.trim() || "Farol";
+  draft.appSubtitle = els.appSubtitleInput.value.trim() || "Finan\u00e7as pessoais";
+}
+
+function renderSettingsLogoPreview(settings) {
+  const title = settings.appTitle?.trim() || "Farol";
+  const fallback = escapeHtml(title.charAt(0).toUpperCase() || "F");
+  const logo = settings.logoDataUrl;
+  els.logoPreview.innerHTML = logo ? `<img src="${escapeHtml(logo)}" alt="" />` : fallback;
 }
 
 function handleLogoUpload() {
@@ -344,9 +389,9 @@ function handleLogoUpload() {
 
   resizeImageFile(file)
     .then((dataUrl) => {
-      state.settings.logoDataUrl = dataUrl;
-      saveState();
-      renderBrand();
+      const draft = ensureSettingsDraft();
+      draft.logoDataUrl = dataUrl;
+      renderSettingsLogoPreview(draft);
     })
     .catch(() => {
       window.alert("N\u00e3o foi poss\u00edvel usar essa imagem.");
@@ -382,35 +427,38 @@ function resizeImageFile(file) {
 }
 
 function addCustomCategory() {
+  const draft = ensureSettingsDraft();
   const name = els.customCategoryInput.value.trim();
   const type = els.categoryTypeInput.value === "income" ? "income" : "expense";
   if (!name) return;
 
   const key = type === "income" ? "customIncomeCategories" : "customExpenseCategories";
-  const exists = getCategories(type).some(
+  const exists = getCategories(type, draft).some(
     (category) => category.toLocaleLowerCase("pt-PT") === name.toLocaleLowerCase("pt-PT"),
   );
 
   if (!exists) {
-    state.settings[key].push(name);
-    state.settings[key].sort((a, b) => a.localeCompare(b, "pt-PT"));
+    draft[key].push(name);
+    draft[key].sort((a, b) => a.localeCompare(b, "pt-PT"));
   }
 
   els.customCategoryInput.value = "";
-  saveAndRender();
+  renderCustomCategories();
 }
 
 function deleteCustomCategory(name) {
+  const draft = ensureSettingsDraft();
   const type = els.categoryTypeInput.value === "income" ? "income" : "expense";
   const key = type === "income" ? "customIncomeCategories" : "customExpenseCategories";
-  state.settings[key] = state.settings[key].filter((category) => category !== name);
-  saveAndRender();
+  draft[key] = draft[key].filter((category) => category !== name);
+  renderCustomCategories();
 }
 
 function renderCustomCategories() {
+  const source = settingsDraft || state.settings;
   const type = els.categoryTypeInput.value === "income" ? "income" : "expense";
   const key = type === "income" ? "customIncomeCategories" : "customExpenseCategories";
-  const categories = state.settings[key] || [];
+  const categories = source[key] || [];
 
   if (!categories.length) {
     els.customCategoryList.innerHTML = `<p class="empty">Ainda n\u00e3o adicionaste categorias personalizadas deste tipo.</p>`;
@@ -1120,12 +1168,12 @@ function summarizeTransactions(transactions) {
   };
 }
 
-function getCategories(type) {
+function getCategories(type, settingsOverride = state.settings) {
   const defaults = type === "income" ? incomeCategories : expenseCategories;
   const custom =
     type === "income"
-      ? state.settings.customIncomeCategories || []
-      : state.settings.customExpenseCategories || [];
+      ? settingsOverride.customIncomeCategories || []
+      : settingsOverride.customExpenseCategories || [];
   const existing = state.transactions
     .filter((transaction) => transaction.type === type)
     .map((transaction) => transaction.category);

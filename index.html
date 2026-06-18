@@ -240,7 +240,7 @@
             <input id="simReturn" inputmode="decimal" value="6" />
           </label>
           <label>
-            Prazo
+            Prazo (anos)
             <input id="simYears" type="number" min="1" max="50" value="20" />
           </label>
         </form>
@@ -369,12 +369,17 @@
           <div class="settings-section">
             <h3>Dados</h3>
             <div class="data-actions">
-              <button id="settingsExportBtn" class="secondary-action" type="button">Exportar dados</button>
-              <label class="secondary-action">
-                Importar dados
+              <button id="settingsExportBtn" class="secondary-action export-action" type="button">Exportar Dados</button>
+              <label class="secondary-action import-action">
+                Importar Dados
                 <input id="settingsImportInput" type="file" accept="application/json" />
               </label>
             </div>
+          </div>
+
+          <div class="settings-footer">
+            <button id="cancelSettingsBtn" class="secondary-action" type="button">Cancelar</button>
+            <button id="saveSettingsBtn" class="primary-button" type="button">Gravar</button>
           </div>
         </section>
       </dialog>
