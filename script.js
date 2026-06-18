@@ -299,7 +299,7 @@ function populateMovementCategories() {
 }
 
 function renderCategoryChips() {
-  const categories = getCategories(selectedType).slice(0, 7);
+  const categories = getCategories(selectedType);
   els.categoryChips.innerHTML = categories
     .map(
       (category) => `

@@ -2,7 +2,7 @@
 <html lang="pt-PT">
   <head>
     <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover" />
     <meta name="theme-color" content="#111412" />
     <meta name="apple-mobile-web-app-capable" content="yes" />
     <meta name="apple-mobile-web-app-title" content="Farol" />
@@ -74,6 +74,8 @@ body {
   margin: 0;
   background: linear-gradient(180deg, var(--bg), var(--page));
   color: var(--text);
+  overscroll-behavior: none;
+  touch-action: manipulation;
 }
 
 button,
@@ -252,6 +254,7 @@ select {
   border-radius: 8px;
   background: var(--surface-2);
   color: var(--text);
+  font-size: 16px;
   padding: 0 12px;
   outline: none;
 }
@@ -265,6 +268,14 @@ select:focus {
 label {
   display: grid;
   gap: 7px;
+  color: var(--muted);
+  font-size: 0.74rem;
+  font-weight: 900;
+  letter-spacing: 0;
+  text-transform: uppercase;
+}
+
+.field-label {
   color: var(--muted);
   font-size: 0.74rem;
   font-weight: 900;
@@ -653,7 +664,7 @@ label {
 
 .movement-dialog {
   width: min(440px, calc(100% - 20px));
-  max-height: min(760px, calc(100vh - 24px));
+  max-height: min(760px, calc(100dvh - 24px));
   margin: auto auto 10px;
   border: 1px solid var(--border);
   border-radius: 10px 10px 8px 8px;
@@ -669,7 +680,7 @@ label {
 
 .movement-form {
   display: grid;
-  gap: 12px;
+  gap: 10px;
   padding: 16px;
 }
 
@@ -718,11 +729,27 @@ label {
   color: #fff;
 }
 
+.category-picker {
+  display: grid;
+  gap: 8px;
+}
+
+.native-category {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  min-height: 1px;
+  overflow: hidden;
+  opacity: 0;
+  pointer-events: none;
+}
+
 .chips {
   display: flex;
   gap: 8px;
   overflow-x: auto;
-  padding-bottom: 2px;
+  margin: 0 -16px;
+  padding: 0 16px 2px;
   scrollbar-width: none;
 }
 
@@ -731,20 +758,21 @@ label {
 }
 
 .chip {
-  min-height: 34px;
+  min-height: 40px;
   flex: 0 0 auto;
   border: 1px solid var(--border);
   border-radius: 8px;
   background: var(--surface-2);
   color: var(--text);
   padding: 0 10px;
-  font-size: 0.78rem;
+  font-size: 0.86rem;
   font-weight: 900;
 }
 
 .chip.active {
   border-color: var(--success);
   background: var(--success-soft);
+  color: var(--success);
 }
 
 .bottom-nav {
@@ -1158,12 +1186,11 @@ label {
             <input id="amount" inputmode="decimal" placeholder="0,00" required />
           </label>
 
-          <label>
-            Categoria
-            <select id="category"></select>
-          </label>
-
-          <div id="categoryChips" class="chips" aria-label="Categorias r&aacute;pidas"></div>
+          <div class="category-picker">
+            <div class="field-label">Categoria</div>
+            <select id="category" class="native-category" aria-label="Categoria"></select>
+            <div id="categoryChips" class="chips" aria-label="Categorias r&aacute;pidas"></div>
+          </div>
 
           <label>
             Descri&ccedil;&atilde;o
@@ -1505,7 +1532,7 @@ function populateMovementCategories() {
 }
 
 function renderCategoryChips() {
-  const categories = getCategories(selectedType).slice(0, 7);
+  const categories = getCategories(selectedType);
   els.categoryChips.innerHTML = categories
     .map(
       (category) => `
