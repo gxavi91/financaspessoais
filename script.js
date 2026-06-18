@@ -31,6 +31,11 @@ const defaultData = {
   netWorth: [],
   settings: {
     theme: "dark",
+    appTitle: "Farol",
+    appSubtitle: "Finan\u00e7as pessoais",
+    logoDataUrl: "",
+    customExpenseCategories: [],
+    customIncomeCategories: [],
   },
 };
 
@@ -76,6 +81,9 @@ const els = {
   monthlyChart: document.querySelector("#monthlyChart"),
   netWorthChart: document.querySelector("#netWorthChart"),
   investmentChart: document.querySelector("#investmentChart"),
+  brandLogo: document.querySelector("#brandLogo"),
+  brandTitle: document.querySelector("#brandTitle"),
+  brandSubtitle: document.querySelector("#brandSubtitle"),
   quickExpense: document.querySelector("#quickExpense"),
   quickIncome: document.querySelector("#quickIncome"),
   addFromList: document.querySelector("#addFromList"),
@@ -112,8 +120,20 @@ const els = {
   simFinal: document.querySelector("#simFinal"),
   simInvested: document.querySelector("#simInvested"),
   simInterest: document.querySelector("#simInterest"),
-  exportBtn: document.querySelector("#exportBtn"),
-  importInput: document.querySelector("#importInput"),
+  settingsBtn: document.querySelector("#settingsBtn"),
+  settingsDialog: document.querySelector("#settingsDialog"),
+  closeSettings: document.querySelector("#closeSettings"),
+  appTitleInput: document.querySelector("#appTitleInput"),
+  appSubtitleInput: document.querySelector("#appSubtitleInput"),
+  logoInput: document.querySelector("#logoInput"),
+  logoPreview: document.querySelector("#logoPreview"),
+  removeLogoBtn: document.querySelector("#removeLogoBtn"),
+  categoryTypeInput: document.querySelector("#categoryTypeInput"),
+  customCategoryInput: document.querySelector("#customCategoryInput"),
+  addCategoryBtn: document.querySelector("#addCategoryBtn"),
+  customCategoryList: document.querySelector("#customCategoryList"),
+  exportBtn: document.querySelector("#settingsExportBtn"),
+  importInput: document.querySelector("#settingsImportInput"),
   themeBtn: document.querySelector("#themeBtn"),
 };
 
@@ -142,6 +162,36 @@ function bindEvents() {
     saveState();
     applyTheme();
     renderChartsSoon();
+  });
+
+  els.settingsBtn.addEventListener("click", () => openSettingsDialog());
+  els.closeSettings.addEventListener("click", () => closeSettingsDialog());
+  els.settingsDialog.addEventListener("click", (event) => {
+    if (event.target === els.settingsDialog) closeSettingsDialog();
+  });
+
+  els.appTitleInput.addEventListener("input", saveBrandSettings);
+  els.appSubtitleInput.addEventListener("input", saveBrandSettings);
+  els.logoInput.addEventListener("change", handleLogoUpload);
+  els.removeLogoBtn.addEventListener("click", () => {
+    state.settings.logoDataUrl = "";
+    saveState();
+    renderBrand();
+    syncSettingsInputs();
+  });
+
+  els.categoryTypeInput.addEventListener("change", renderCustomCategories);
+  els.addCategoryBtn.addEventListener("click", addCustomCategory);
+  els.customCategoryInput.addEventListener("keydown", (event) => {
+    if (event.key === "Enter") {
+      event.preventDefault();
+      addCustomCategory();
+    }
+  });
+  els.customCategoryList.addEventListener("click", (event) => {
+    const button = event.target.closest("[data-delete-custom-category]");
+    if (!button) return;
+    deleteCustomCategory(button.dataset.deleteCustomCategory);
   });
 
   els.monthPicker.addEventListener("change", () => {
@@ -238,6 +288,145 @@ function switchView(viewName) {
     button.classList.toggle("active", button.dataset.viewTarget === viewName);
   });
   renderChartsSoon();
+}
+
+function openSettingsDialog() {
+  syncSettingsInputs();
+  renderCustomCategories();
+  if (els.settingsDialog.showModal) {
+    els.settingsDialog.showModal();
+  } else {
+    els.settingsDialog.setAttribute("open", "");
+  }
+}
+
+function closeSettingsDialog() {
+  if (els.settingsDialog.close) {
+    els.settingsDialog.close();
+  } else {
+    els.settingsDialog.removeAttribute("open");
+  }
+}
+
+function renderBrand() {
+  const title = state.settings.appTitle?.trim() || "Farol";
+  const subtitle = state.settings.appSubtitle?.trim() || "Finan\u00e7as pessoais";
+  els.brandTitle.textContent = title;
+  els.brandSubtitle.textContent = subtitle;
+  document.title = `${title} - ${subtitle}`;
+
+  const fallback = escapeHtml(title.trim().charAt(0).toUpperCase() || "F");
+  const logo = state.settings.logoDataUrl;
+  const content = logo ? `<img src="${escapeHtml(logo)}" alt="" />` : fallback;
+  els.brandLogo.innerHTML = content;
+  els.logoPreview.innerHTML = content;
+}
+
+function syncSettingsInputs() {
+  if (document.activeElement !== els.appTitleInput) {
+    els.appTitleInput.value = state.settings.appTitle || "Farol";
+  }
+  if (document.activeElement !== els.appSubtitleInput) {
+    els.appSubtitleInput.value = state.settings.appSubtitle || "Finan\u00e7as pessoais";
+  }
+}
+
+function saveBrandSettings() {
+  state.settings.appTitle = els.appTitleInput.value.trim() || "Farol";
+  state.settings.appSubtitle = els.appSubtitleInput.value.trim() || "Finan\u00e7as pessoais";
+  saveState();
+  renderBrand();
+}
+
+function handleLogoUpload() {
+  const file = els.logoInput.files?.[0];
+  if (!file) return;
+
+  resizeImageFile(file)
+    .then((dataUrl) => {
+      state.settings.logoDataUrl = dataUrl;
+      saveState();
+      renderBrand();
+    })
+    .catch(() => {
+      window.alert("N\u00e3o foi poss\u00edvel usar essa imagem.");
+    })
+    .finally(() => {
+      els.logoInput.value = "";
+    });
+}
+
+function resizeImageFile(file) {
+  return new Promise((resolve, reject) => {
+    const reader = new FileReader();
+    reader.onerror = reject;
+    reader.onload = () => {
+      const img = new Image();
+      img.onerror = () => resolve(String(reader.result));
+      img.onload = () => {
+        const size = 256;
+        const canvas = document.createElement("canvas");
+        const ctx = canvas.getContext("2d");
+        const side = Math.min(img.width, img.height);
+        const sx = Math.max(0, (img.width - side) / 2);
+        const sy = Math.max(0, (img.height - side) / 2);
+        canvas.width = size;
+        canvas.height = size;
+        ctx.drawImage(img, sx, sy, side, side, 0, 0, size, size);
+        resolve(canvas.toDataURL("image/jpeg", 0.86));
+      };
+      img.src = String(reader.result);
+    };
+    reader.readAsDataURL(file);
+  });
+}
+
+function addCustomCategory() {
+  const name = els.customCategoryInput.value.trim();
+  const type = els.categoryTypeInput.value === "income" ? "income" : "expense";
+  if (!name) return;
+
+  const key = type === "income" ? "customIncomeCategories" : "customExpenseCategories";
+  const exists = getCategories(type).some(
+    (category) => category.toLocaleLowerCase("pt-PT") === name.toLocaleLowerCase("pt-PT"),
+  );
+
+  if (!exists) {
+    state.settings[key].push(name);
+    state.settings[key].sort((a, b) => a.localeCompare(b, "pt-PT"));
+  }
+
+  els.customCategoryInput.value = "";
+  saveAndRender();
+}
+
+function deleteCustomCategory(name) {
+  const type = els.categoryTypeInput.value === "income" ? "income" : "expense";
+  const key = type === "income" ? "customIncomeCategories" : "customExpenseCategories";
+  state.settings[key] = state.settings[key].filter((category) => category !== name);
+  saveAndRender();
+}
+
+function renderCustomCategories() {
+  const type = els.categoryTypeInput.value === "income" ? "income" : "expense";
+  const key = type === "income" ? "customIncomeCategories" : "customExpenseCategories";
+  const categories = state.settings[key] || [];
+
+  if (!categories.length) {
+    els.customCategoryList.innerHTML = `<p class="empty">Ainda n\u00e3o adicionaste categorias personalizadas deste tipo.</p>`;
+    return;
+  }
+
+  els.customCategoryList.innerHTML = categories
+    .map(
+      (category) => `
+        <div class="custom-category-item">
+          <span>${escapeHtml(category)}</span>
+          <button type="button" data-delete-custom-category="${escapeHtml(category)}">Apagar</button>
+        </div>
+      `,
+    )
+    .join("");
 }
 
 function openMovementDialog(type = "expense", fixed = null) {
@@ -392,9 +581,12 @@ function saveNetWorth() {
 }
 
 function render() {
+  renderBrand();
+  syncSettingsInputs();
   populateFixedCategorySelect();
   renderFixedPresetSelect();
   populateMovementCategories();
+  renderCustomCategories();
   renderDashboard();
   renderTransactions();
   renderFixedExpenses();
@@ -930,11 +1122,15 @@ function summarizeTransactions(transactions) {
 
 function getCategories(type) {
   const defaults = type === "income" ? incomeCategories : expenseCategories;
+  const custom =
+    type === "income"
+      ? state.settings.customIncomeCategories || []
+      : state.settings.customExpenseCategories || [];
   const existing = state.transactions
     .filter((transaction) => transaction.type === type)
     .map((transaction) => transaction.category);
   const fixed = type === "expense" ? state.fixedExpenses.map((item) => item.category) : [];
-  return [...new Set([...defaults, ...existing, ...fixed])].sort((a, b) => a.localeCompare(b, "pt-PT"));
+  return [...new Set([...defaults, ...custom, ...existing, ...fixed])].sort((a, b) => a.localeCompare(b, "pt-PT"));
 }
 
 function saveAndRender() {
@@ -995,6 +1191,11 @@ function normalizeData(data) {
       : [],
     settings: {
       theme: source.settings?.theme === "light" ? "light" : "dark",
+      appTitle: source.settings?.appTitle || "Farol",
+      appSubtitle: source.settings?.appSubtitle || "Finan\u00e7as pessoais",
+      logoDataUrl: source.settings?.logoDataUrl || "",
+      customExpenseCategories: sanitizeCategoryList(source.settings?.customExpenseCategories),
+      customIncomeCategories: sanitizeCategoryList(source.settings?.customIncomeCategories),
     },
   };
 }
@@ -1123,6 +1324,13 @@ function formatInputAmount(value) {
 function formatDelta(value) {
   const sign = value > 0 ? "+" : "";
   return `${sign}${money.format(value)}`;
+}
+
+function sanitizeCategoryList(categories) {
+  if (!Array.isArray(categories)) return [];
+  return [...new Set(categories.map((category) => String(category).trim()).filter(Boolean))].sort((a, b) =>
+    a.localeCompare(b, "pt-PT"),
+  );
 }
 
 function createId() {

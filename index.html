@@ -16,10 +16,10 @@
     <main class="app">
       <header class="topbar">
         <button class="brand" data-view-target="dashboard" type="button" aria-label="Ir para o resumo">
-          <span class="brand-mark" aria-hidden="true">F</span>
+          <span id="brandLogo" class="brand-mark" aria-hidden="true">F</span>
           <span>
-            <strong>Farol</strong>
-            <small>Finan&ccedil;as pessoais</small>
+            <strong id="brandTitle">Farol</strong>
+            <small id="brandSubtitle">Finan&ccedil;as pessoais</small>
           </span>
         </button>
 
@@ -27,7 +27,7 @@
           <button id="themeBtn" class="icon-button" type="button" aria-label="Alternar tema">
             <span aria-hidden="true">◐</span>
           </button>
-          <button id="exportBtn" class="icon-button" type="button" aria-label="Exportar dados">
+          <button id="settingsBtn" class="icon-button menu-button" type="button" aria-label="Abrir defini&ccedil;&otilde;es">
             <span aria-hidden="true">⇩</span>
           </button>
           <label class="icon-button file-button" aria-label="Importar dados">
@@ -313,6 +313,70 @@
 
           <button class="primary-button" id="saveMovement" type="submit">Guardar</button>
         </form>
+      </dialog>
+
+      <dialog id="settingsDialog" class="settings-dialog">
+        <section class="settings-sheet" aria-labelledby="settingsTitle">
+          <div class="dialog-head">
+            <div>
+              <p class="overline">Personaliza&ccedil;&atilde;o</p>
+              <h2 id="settingsTitle">Defini&ccedil;&otilde;es</h2>
+            </div>
+            <button id="closeSettings" class="icon-button" type="button" aria-label="Fechar">x</button>
+          </div>
+
+          <div class="settings-section">
+            <h3>Topo da app</h3>
+            <label>
+              Nome
+              <input id="appTitleInput" autocomplete="off" maxlength="24" />
+            </label>
+            <label>
+              Subt&iacute;tulo
+              <input id="appSubtitleInput" autocomplete="off" maxlength="34" />
+            </label>
+            <div class="logo-row">
+              <div id="logoPreview" class="logo-preview" aria-hidden="true">F</div>
+              <div class="logo-actions">
+                <label class="secondary-action">
+                  Escolher foto
+                  <input id="logoInput" type="file" accept="image/*" />
+                </label>
+                <button id="removeLogoBtn" class="secondary-action" type="button">Remover foto</button>
+              </div>
+            </div>
+          </div>
+
+          <div class="settings-section">
+            <h3>Categorias</h3>
+            <div class="field-row">
+              <label>
+                Tipo
+                <select id="categoryTypeInput">
+                  <option value="expense">Despesa</option>
+                  <option value="income">Receita</option>
+                </select>
+              </label>
+              <label>
+                Nova
+                <input id="customCategoryInput" autocomplete="off" placeholder="Ex.: Animais" />
+              </label>
+            </div>
+            <button id="addCategoryBtn" class="primary-button" type="button">Adicionar categoria</button>
+            <div id="customCategoryList" class="custom-category-list"></div>
+          </div>
+
+          <div class="settings-section">
+            <h3>Dados</h3>
+            <div class="data-actions">
+              <button id="settingsExportBtn" class="secondary-action" type="button">Exportar dados</button>
+              <label class="secondary-action">
+                Importar dados
+                <input id="settingsImportInput" type="file" accept="application/json" />
+              </label>
+            </div>
+          </div>
+        </section>
       </dialog>
 
       <nav class="bottom-nav" aria-label="Navega&ccedil;&atilde;o principal">

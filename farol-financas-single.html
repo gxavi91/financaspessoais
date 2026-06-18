@@ -151,6 +151,14 @@ p {
   background: var(--surface);
   color: var(--success);
   font-weight: 900;
+  overflow: hidden;
+}
+
+.brand-mark img,
+.logo-preview img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
 }
 
 .brand strong,
@@ -197,6 +205,19 @@ p {
 
 .file-button input {
   display: none;
+}
+
+.top-actions .file-button {
+  display: none;
+}
+
+.menu-button span {
+  font-size: 0;
+}
+
+.menu-button span::before {
+  content: "...";
+  font-size: 1rem;
 }
 
 .view {
@@ -673,6 +694,130 @@ label {
   box-shadow: 0 24px 72px rgb(0 0 0 / 0.5);
 }
 
+.settings-dialog {
+  width: min(520px, calc(100% - 20px));
+  max-height: min(820px, calc(100dvh - 24px));
+  margin: auto auto 10px;
+  border: 1px solid var(--border);
+  border-radius: 10px 10px 8px 8px;
+  background: var(--surface);
+  color: var(--text);
+  box-shadow: 0 24px 72px rgb(0 0 0 / 0.5);
+}
+
+.settings-dialog::backdrop {
+  background: rgb(0 0 0 / 0.62);
+  backdrop-filter: blur(4px);
+}
+
+.settings-sheet {
+  display: grid;
+  gap: 14px;
+  max-height: calc(100dvh - 42px);
+  overflow: auto;
+  padding: 16px;
+}
+
+.settings-section {
+  display: grid;
+  gap: 12px;
+  border: 1px solid rgb(128 138 116 / 0.14);
+  border-radius: 8px;
+  background: var(--surface-2);
+  padding: 12px;
+}
+
+.settings-section h3 {
+  margin: 0;
+  color: var(--muted);
+  font-size: 0.76rem;
+  font-weight: 900;
+  letter-spacing: 0;
+  text-transform: uppercase;
+}
+
+.logo-row {
+  display: grid;
+  grid-template-columns: 58px 1fr;
+  gap: 12px;
+  align-items: center;
+}
+
+.logo-preview {
+  display: grid;
+  width: 58px;
+  height: 58px;
+  place-items: center;
+  overflow: hidden;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  background: var(--surface);
+  color: var(--success);
+  font-size: 1.25rem;
+  font-weight: 900;
+}
+
+.logo-actions,
+.data-actions {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.secondary-action {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 40px;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  background: var(--surface);
+  color: var(--text);
+  padding: 0 12px;
+  font-size: 0.82rem;
+  font-weight: 900;
+  text-transform: none;
+}
+
+.secondary-action input {
+  display: none;
+}
+
+.custom-category-list {
+  display: grid;
+  gap: 8px;
+}
+
+.custom-category-item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  background: var(--surface);
+  padding: 8px 10px;
+}
+
+.custom-category-item span {
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  font-weight: 800;
+}
+
+.custom-category-item button {
+  min-height: 30px;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  background: var(--surface-2);
+  color: var(--muted);
+  padding: 0 9px;
+  font-size: 0.76rem;
+  font-weight: 900;
+}
+
 .movement-dialog::backdrop {
   background: rgb(0 0 0 / 0.62);
   backdrop-filter: blur(4px);
@@ -907,10 +1052,10 @@ label {
     <main class="app">
       <header class="topbar">
         <button class="brand" data-view-target="dashboard" type="button" aria-label="Ir para o resumo">
-          <span class="brand-mark" aria-hidden="true">F</span>
+          <span id="brandLogo" class="brand-mark" aria-hidden="true">F</span>
           <span>
-            <strong>Farol</strong>
-            <small>Finan&ccedil;as pessoais</small>
+            <strong id="brandTitle">Farol</strong>
+            <small id="brandSubtitle">Finan&ccedil;as pessoais</small>
           </span>
         </button>
 
@@ -918,7 +1063,7 @@ label {
           <button id="themeBtn" class="icon-button" type="button" aria-label="Alternar tema">
             <span aria-hidden="true">◐</span>
           </button>
-          <button id="exportBtn" class="icon-button" type="button" aria-label="Exportar dados">
+          <button id="settingsBtn" class="icon-button menu-button" type="button" aria-label="Abrir defini&ccedil;&otilde;es">
             <span aria-hidden="true">⇩</span>
           </button>
           <label class="icon-button file-button" aria-label="Importar dados">
@@ -1206,6 +1351,70 @@ label {
         </form>
       </dialog>
 
+      <dialog id="settingsDialog" class="settings-dialog">
+        <section class="settings-sheet" aria-labelledby="settingsTitle">
+          <div class="dialog-head">
+            <div>
+              <p class="overline">Personaliza&ccedil;&atilde;o</p>
+              <h2 id="settingsTitle">Defini&ccedil;&otilde;es</h2>
+            </div>
+            <button id="closeSettings" class="icon-button" type="button" aria-label="Fechar">x</button>
+          </div>
+
+          <div class="settings-section">
+            <h3>Topo da app</h3>
+            <label>
+              Nome
+              <input id="appTitleInput" autocomplete="off" maxlength="24" />
+            </label>
+            <label>
+              Subt&iacute;tulo
+              <input id="appSubtitleInput" autocomplete="off" maxlength="34" />
+            </label>
+            <div class="logo-row">
+              <div id="logoPreview" class="logo-preview" aria-hidden="true">F</div>
+              <div class="logo-actions">
+                <label class="secondary-action">
+                  Escolher foto
+                  <input id="logoInput" type="file" accept="image/*" />
+                </label>
+                <button id="removeLogoBtn" class="secondary-action" type="button">Remover foto</button>
+              </div>
+            </div>
+          </div>
+
+          <div class="settings-section">
+            <h3>Categorias</h3>
+            <div class="field-row">
+              <label>
+                Tipo
+                <select id="categoryTypeInput">
+                  <option value="expense">Despesa</option>
+                  <option value="income">Receita</option>
+                </select>
+              </label>
+              <label>
+                Nova
+                <input id="customCategoryInput" autocomplete="off" placeholder="Ex.: Animais" />
+              </label>
+            </div>
+            <button id="addCategoryBtn" class="primary-button" type="button">Adicionar categoria</button>
+            <div id="customCategoryList" class="custom-category-list"></div>
+          </div>
+
+          <div class="settings-section">
+            <h3>Dados</h3>
+            <div class="data-actions">
+              <button id="settingsExportBtn" class="secondary-action" type="button">Exportar dados</button>
+              <label class="secondary-action">
+                Importar dados
+                <input id="settingsImportInput" type="file" accept="application/json" />
+              </label>
+            </div>
+          </div>
+        </section>
+      </dialog>
+
       <nav class="bottom-nav" aria-label="Navega&ccedil;&atilde;o principal">
         <button class="active" data-view-target="dashboard" type="button">
           <span aria-hidden="true">⌂</span>
@@ -1264,6 +1473,11 @@ const defaultData = {
   netWorth: [],
   settings: {
     theme: "dark",
+    appTitle: "Farol",
+    appSubtitle: "Finan\u00e7as pessoais",
+    logoDataUrl: "",
+    customExpenseCategories: [],
+    customIncomeCategories: [],
   },
 };
 
@@ -1309,6 +1523,9 @@ const els = {
   monthlyChart: document.querySelector("#monthlyChart"),
   netWorthChart: document.querySelector("#netWorthChart"),
   investmentChart: document.querySelector("#investmentChart"),
+  brandLogo: document.querySelector("#brandLogo"),
+  brandTitle: document.querySelector("#brandTitle"),
+  brandSubtitle: document.querySelector("#brandSubtitle"),
   quickExpense: document.querySelector("#quickExpense"),
   quickIncome: document.querySelector("#quickIncome"),
   addFromList: document.querySelector("#addFromList"),
@@ -1345,8 +1562,20 @@ const els = {
   simFinal: document.querySelector("#simFinal"),
   simInvested: document.querySelector("#simInvested"),
   simInterest: document.querySelector("#simInterest"),
-  exportBtn: document.querySelector("#exportBtn"),
-  importInput: document.querySelector("#importInput"),
+  settingsBtn: document.querySelector("#settingsBtn"),
+  settingsDialog: document.querySelector("#settingsDialog"),
+  closeSettings: document.querySelector("#closeSettings"),
+  appTitleInput: document.querySelector("#appTitleInput"),
+  appSubtitleInput: document.querySelector("#appSubtitleInput"),
+  logoInput: document.querySelector("#logoInput"),
+  logoPreview: document.querySelector("#logoPreview"),
+  removeLogoBtn: document.querySelector("#removeLogoBtn"),
+  categoryTypeInput: document.querySelector("#categoryTypeInput"),
+  customCategoryInput: document.querySelector("#customCategoryInput"),
+  addCategoryBtn: document.querySelector("#addCategoryBtn"),
+  customCategoryList: document.querySelector("#customCategoryList"),
+  exportBtn: document.querySelector("#settingsExportBtn"),
+  importInput: document.querySelector("#settingsImportInput"),
   themeBtn: document.querySelector("#themeBtn"),
 };
 
@@ -1375,6 +1604,36 @@ function bindEvents() {
     saveState();
     applyTheme();
     renderChartsSoon();
+  });
+
+  els.settingsBtn.addEventListener("click", () => openSettingsDialog());
+  els.closeSettings.addEventListener("click", () => closeSettingsDialog());
+  els.settingsDialog.addEventListener("click", (event) => {
+    if (event.target === els.settingsDialog) closeSettingsDialog();
+  });
+
+  els.appTitleInput.addEventListener("input", saveBrandSettings);
+  els.appSubtitleInput.addEventListener("input", saveBrandSettings);
+  els.logoInput.addEventListener("change", handleLogoUpload);
+  els.removeLogoBtn.addEventListener("click", () => {
+    state.settings.logoDataUrl = "";
+    saveState();
+    renderBrand();
+    syncSettingsInputs();
+  });
+
+  els.categoryTypeInput.addEventListener("change", renderCustomCategories);
+  els.addCategoryBtn.addEventListener("click", addCustomCategory);
+  els.customCategoryInput.addEventListener("keydown", (event) => {
+    if (event.key === "Enter") {
+      event.preventDefault();
+      addCustomCategory();
+    }
+  });
+  els.customCategoryList.addEventListener("click", (event) => {
+    const button = event.target.closest("[data-delete-custom-category]");
+    if (!button) return;
+    deleteCustomCategory(button.dataset.deleteCustomCategory);
   });
 
   els.monthPicker.addEventListener("change", () => {
@@ -1471,6 +1730,145 @@ function switchView(viewName) {
     button.classList.toggle("active", button.dataset.viewTarget === viewName);
   });
   renderChartsSoon();
+}
+
+function openSettingsDialog() {
+  syncSettingsInputs();
+  renderCustomCategories();
+  if (els.settingsDialog.showModal) {
+    els.settingsDialog.showModal();
+  } else {
+    els.settingsDialog.setAttribute("open", "");
+  }
+}
+
+function closeSettingsDialog() {
+  if (els.settingsDialog.close) {
+    els.settingsDialog.close();
+  } else {
+    els.settingsDialog.removeAttribute("open");
+  }
+}
+
+function renderBrand() {
+  const title = state.settings.appTitle?.trim() || "Farol";
+  const subtitle = state.settings.appSubtitle?.trim() || "Finan\u00e7as pessoais";
+  els.brandTitle.textContent = title;
+  els.brandSubtitle.textContent = subtitle;
+  document.title = `${title} - ${subtitle}`;
+
+  const fallback = escapeHtml(title.trim().charAt(0).toUpperCase() || "F");
+  const logo = state.settings.logoDataUrl;
+  const content = logo ? `<img src="${escapeHtml(logo)}" alt="" />` : fallback;
+  els.brandLogo.innerHTML = content;
+  els.logoPreview.innerHTML = content;
+}
+
+function syncSettingsInputs() {
+  if (document.activeElement !== els.appTitleInput) {
+    els.appTitleInput.value = state.settings.appTitle || "Farol";
+  }
+  if (document.activeElement !== els.appSubtitleInput) {
+    els.appSubtitleInput.value = state.settings.appSubtitle || "Finan\u00e7as pessoais";
+  }
+}
+
+function saveBrandSettings() {
+  state.settings.appTitle = els.appTitleInput.value.trim() || "Farol";
+  state.settings.appSubtitle = els.appSubtitleInput.value.trim() || "Finan\u00e7as pessoais";
+  saveState();
+  renderBrand();
+}
+
+function handleLogoUpload() {
+  const file = els.logoInput.files?.[0];
+  if (!file) return;
+
+  resizeImageFile(file)
+    .then((dataUrl) => {
+      state.settings.logoDataUrl = dataUrl;
+      saveState();
+      renderBrand();
+    })
+    .catch(() => {
+      window.alert("N\u00e3o foi poss\u00edvel usar essa imagem.");
+    })
+    .finally(() => {
+      els.logoInput.value = "";
+    });
+}
+
+function resizeImageFile(file) {
+  return new Promise((resolve, reject) => {
+    const reader = new FileReader();
+    reader.onerror = reject;
+    reader.onload = () => {
+      const img = new Image();
+      img.onerror = () => resolve(String(reader.result));
+      img.onload = () => {
+        const size = 256;
+        const canvas = document.createElement("canvas");
+        const ctx = canvas.getContext("2d");
+        const side = Math.min(img.width, img.height);
+        const sx = Math.max(0, (img.width - side) / 2);
+        const sy = Math.max(0, (img.height - side) / 2);
+        canvas.width = size;
+        canvas.height = size;
+        ctx.drawImage(img, sx, sy, side, side, 0, 0, size, size);
+        resolve(canvas.toDataURL("image/jpeg", 0.86));
+      };
+      img.src = String(reader.result);
+    };
+    reader.readAsDataURL(file);
+  });
+}
+
+function addCustomCategory() {
+  const name = els.customCategoryInput.value.trim();
+  const type = els.categoryTypeInput.value === "income" ? "income" : "expense";
+  if (!name) return;
+
+  const key = type === "income" ? "customIncomeCategories" : "customExpenseCategories";
+  const exists = getCategories(type).some(
+    (category) => category.toLocaleLowerCase("pt-PT") === name.toLocaleLowerCase("pt-PT"),
+  );
+
+  if (!exists) {
+    state.settings[key].push(name);
+    state.settings[key].sort((a, b) => a.localeCompare(b, "pt-PT"));
+  }
+
+  els.customCategoryInput.value = "";
+  saveAndRender();
+}
+
+function deleteCustomCategory(name) {
+  const type = els.categoryTypeInput.value === "income" ? "income" : "expense";
+  const key = type === "income" ? "customIncomeCategories" : "customExpenseCategories";
+  state.settings[key] = state.settings[key].filter((category) => category !== name);
+  saveAndRender();
+}
+
+function renderCustomCategories() {
+  const type = els.categoryTypeInput.value === "income" ? "income" : "expense";
+  const key = type === "income" ? "customIncomeCategories" : "customExpenseCategories";
+  const categories = state.settings[key] || [];
+
+  if (!categories.length) {
+    els.customCategoryList.innerHTML = `<p class="empty">Ainda n\u00e3o adicionaste categorias personalizadas deste tipo.</p>`;
+    return;
+  }
+
+  els.customCategoryList.innerHTML = categories
+    .map(
+      (category) => `
+        <div class="custom-category-item">
+          <span>${escapeHtml(category)}</span>
+          <button type="button" data-delete-custom-category="${escapeHtml(category)}">Apagar</button>
+        </div>
+      `,
+    )
+    .join("");
 }
 
 function openMovementDialog(type = "expense", fixed = null) {
@@ -1625,9 +2023,12 @@ function saveNetWorth() {
 }
 
 function render() {
+  renderBrand();
+  syncSettingsInputs();
   populateFixedCategorySelect();
   renderFixedPresetSelect();
   populateMovementCategories();
+  renderCustomCategories();
   renderDashboard();
   renderTransactions();
   renderFixedExpenses();
@@ -2163,11 +2564,15 @@ function summarizeTransactions(transactions) {
 
 function getCategories(type) {
   const defaults = type === "income" ? incomeCategories : expenseCategories;
+  const custom =
+    type === "income"
+      ? state.settings.customIncomeCategories || []
+      : state.settings.customExpenseCategories || [];
   const existing = state.transactions
     .filter((transaction) => transaction.type === type)
     .map((transaction) => transaction.category);
   const fixed = type === "expense" ? state.fixedExpenses.map((item) => item.category) : [];
-  return [...new Set([...defaults, ...existing, ...fixed])].sort((a, b) => a.localeCompare(b, "pt-PT"));
+  return [...new Set([...defaults, ...custom, ...existing, ...fixed])].sort((a, b) => a.localeCompare(b, "pt-PT"));
 }
 
 function saveAndRender() {
@@ -2228,6 +2633,11 @@ function normalizeData(data) {
       : [],
     settings: {
       theme: source.settings?.theme === "light" ? "light" : "dark",
+      appTitle: source.settings?.appTitle || "Farol",
+      appSubtitle: source.settings?.appSubtitle || "Finan\u00e7as pessoais",
+      logoDataUrl: source.settings?.logoDataUrl || "",
+      customExpenseCategories: sanitizeCategoryList(source.settings?.customExpenseCategories),
+      customIncomeCategories: sanitizeCategoryList(source.settings?.customIncomeCategories),
     },
   };
 }
@@ -2356,6 +2766,13 @@ function formatInputAmount(value) {
 function formatDelta(value) {
   const sign = value > 0 ? "+" : "";
   return `${sign}${money.format(value)}`;
+}
+
+function sanitizeCategoryList(categories) {
+  if (!Array.isArray(categories)) return [];
+  return [...new Set(categories.map((category) => String(category).trim()).filter(Boolean))].sort((a, b) =>
+    a.localeCompare(b, "pt-PT"),
+  );
 }
 
 function createId() {

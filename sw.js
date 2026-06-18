@@ -1,4 +1,4 @@
-const CACHE_NAME = "farol-financas-v3";
+const CACHE_NAME = "farol-financas-v4";
 const ASSETS = ["./", "index.html", "styles.css", "script.js", "manifest.webmanifest", "icon.svg"];
 
 self.addEventListener("install", (event) => {
