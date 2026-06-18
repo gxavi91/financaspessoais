@@ -1,0 +1,345 @@
+<!doctype html>
+<html lang="pt-PT">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+    <meta name="theme-color" content="#111412" />
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-title" content="Farol" />
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+    <title>Farol - Finan&ccedil;as pessoais</title>
+    <link rel="manifest" href="manifest.webmanifest" />
+    <link rel="icon" href="icon.svg" type="image/svg+xml" />
+    <link rel="stylesheet" href="styles.css" />
+  </head>
+  <body>
+    <main class="app">
+      <header class="topbar">
+        <button class="brand" data-view-target="dashboard" type="button" aria-label="Ir para o resumo">
+          <span class="brand-mark" aria-hidden="true">F</span>
+          <span>
+            <strong>Farol</strong>
+            <small>Finan&ccedil;as pessoais</small>
+          </span>
+        </button>
+
+        <div class="top-actions">
+          <button id="themeBtn" class="icon-button" type="button" aria-label="Alternar tema">
+            <span aria-hidden="true">◐</span>
+          </button>
+          <button id="exportBtn" class="icon-button" type="button" aria-label="Exportar dados">
+            <span aria-hidden="true">⇩</span>
+          </button>
+          <label class="icon-button file-button" aria-label="Importar dados">
+            <span aria-hidden="true">⇧</span>
+            <input id="importInput" type="file" accept="application/json" />
+          </label>
+        </div>
+      </header>
+
+      <section class="view active" id="view-dashboard" aria-labelledby="dashboardTitle">
+        <div class="month-strip">
+          <div>
+            <p class="overline">M&ecirc;s em an&aacute;lise</p>
+            <h1 id="dashboardTitle">Resumo</h1>
+          </div>
+          <input id="monthPicker" type="month" aria-label="Escolher m&ecirc;s" />
+        </div>
+
+        <section class="balance-panel" aria-label="Resumo financeiro do m&ecirc;s">
+          <p>Saldo mensal</p>
+          <strong id="balanceTotal">0,00 &euro;</strong>
+          <div class="summary-grid">
+            <article>
+              <span>Receitas</span>
+              <strong id="incomeTotal">0,00 &euro;</strong>
+            </article>
+            <article>
+              <span>Despesas</span>
+              <strong id="expenseTotal">0,00 &euro;</strong>
+            </article>
+            <article>
+              <span>Poupan&ccedil;a</span>
+              <strong id="savingsRate">0%</strong>
+            </article>
+          </div>
+        </section>
+
+        <div class="quick-actions">
+          <button id="quickExpense" class="primary-button danger" type="button">Nova despesa</button>
+          <button id="quickIncome" class="primary-button success" type="button">Nova receita</button>
+        </div>
+
+        <section class="panel insights-panel" aria-label="Insights autom&aacute;ticos">
+          <div class="section-head">
+            <h2>Insights</h2>
+          </div>
+          <div id="insightList" class="insight-list"></div>
+        </section>
+
+        <section class="panel chart-panel" aria-label="Evolu&ccedil;&atilde;o financeira">
+          <div class="section-head">
+            <h2>Evolu&ccedil;&atilde;o mensal</h2>
+            <div class="legend">
+              <span><i class="dot balance"></i>Saldo</span>
+              <span><i class="dot income"></i>Receitas</span>
+              <span><i class="dot expense"></i>Despesas</span>
+            </div>
+          </div>
+          <canvas id="monthlyChart" height="180"></canvas>
+        </section>
+
+        <section class="panel" aria-label="Compara&ccedil;&atilde;o com meses anteriores">
+          <div class="section-head">
+            <h2>Compara&ccedil;&atilde;o</h2>
+          </div>
+          <div id="comparisonGrid" class="metric-grid"></div>
+        </section>
+
+        <section class="panel" aria-label="Categorias do m&ecirc;s">
+          <div class="section-head">
+            <h2>Categorias</h2>
+          </div>
+          <div id="categoryBreakdown" class="category-list"></div>
+        </section>
+      </section>
+
+      <section class="view" id="view-transactions" aria-labelledby="transactionsTitle">
+        <div class="section-title">
+          <p class="overline">Hist&oacute;rico</p>
+          <h1 id="transactionsTitle">Movimentos</h1>
+        </div>
+        <div class="panel">
+          <div class="section-head">
+            <h2>Por m&ecirc;s</h2>
+            <button id="addFromList" class="small-button" type="button">Adicionar</button>
+          </div>
+          <div id="transactionGroups" class="transaction-groups"></div>
+        </div>
+      </section>
+
+      <section class="view" id="view-fixed" aria-labelledby="fixedTitle">
+        <div class="section-title">
+          <p class="overline">Base r&aacute;pida</p>
+          <h1 id="fixedTitle">Despesas fixas</h1>
+        </div>
+        <form id="fixedForm" class="panel compact-form">
+          <div class="section-head">
+            <h2>Nova despesa fixa</h2>
+          </div>
+          <label>
+            Nome
+            <input id="fixedName" autocomplete="off" placeholder="Ex.: Renda, gin&aacute;sio, Netflix" required />
+          </label>
+          <div class="field-row">
+            <label>
+              Valor
+              <input id="fixedAmount" inputmode="decimal" placeholder="0,00" required />
+            </label>
+            <label>
+              Dia
+              <input id="fixedDay" type="number" min="1" max="31" value="1" required />
+            </label>
+          </div>
+          <label>
+            Categoria
+            <select id="fixedCategory"></select>
+          </label>
+          <button class="primary-button" type="submit">Guardar fixa</button>
+        </form>
+
+        <section class="panel">
+          <div class="section-head">
+            <h2>Guardadas</h2>
+          </div>
+          <div id="fixedList" class="fixed-list"></div>
+        </section>
+      </section>
+
+      <section class="view" id="view-worth" aria-labelledby="worthTitle">
+        <div class="section-title">
+          <p class="overline">Patrim&oacute;nio</p>
+          <h1 id="worthTitle">Crescimento</h1>
+        </div>
+
+        <section class="balance-panel worth-panel">
+          <p>Patrim&oacute;nio atual</p>
+          <strong id="netWorthTotal">0,00 &euro;</strong>
+          <div class="summary-grid two">
+            <article>
+              <span>Varia&ccedil;&atilde;o</span>
+              <strong id="netWorthChange">0,00 &euro;</strong>
+            </article>
+            <article>
+              <span>Registos</span>
+              <strong id="netWorthCount">0</strong>
+            </article>
+          </div>
+        </section>
+
+        <section class="panel chart-panel" aria-label="Gr&aacute;fico de patrim&oacute;nio">
+          <div class="section-head">
+            <h2>Gr&aacute;fico</h2>
+          </div>
+          <canvas id="netWorthChart" height="180"></canvas>
+        </section>
+
+        <form id="netWorthForm" class="panel compact-form">
+          <div class="section-head">
+            <h2>Novo registo</h2>
+          </div>
+          <label>
+            Valor total
+            <input id="netWorthAmount" inputmode="decimal" placeholder="0,00" required />
+          </label>
+          <label>
+            Data
+            <input id="netWorthDate" type="date" required />
+          </label>
+          <label>
+            Nota
+            <input id="netWorthNote" autocomplete="off" placeholder="Ex.: fim do m&ecirc;s, ap&oacute;s poupan&ccedil;a" />
+          </label>
+          <button class="primary-button" type="submit">Guardar patrim&oacute;nio</button>
+        </form>
+
+        <section class="panel">
+          <div class="section-head">
+            <h2>Registos</h2>
+          </div>
+          <div id="netWorthList" class="simple-list"></div>
+        </section>
+      </section>
+
+      <section class="view" id="view-simulator" aria-labelledby="simulatorTitle">
+        <div class="section-title">
+          <p class="overline">Investimento</p>
+          <h1 id="simulatorTitle">Simulador</h1>
+        </div>
+
+        <form id="simulatorForm" class="panel compact-form simulator-grid">
+          <label>
+            Valor inicial
+            <input id="simInitial" inputmode="decimal" value="1000" />
+          </label>
+          <label>
+            Refor&ccedil;o
+            <input id="simContribution" inputmode="decimal" value="100" />
+          </label>
+          <label>
+            Frequ&ecirc;ncia
+            <select id="simFrequency">
+              <option value="daily">Todos os dias</option>
+              <option value="weekly">Todas as semanas</option>
+              <option value="monthly" selected>Todos os meses</option>
+              <option value="yearly">Todos os anos</option>
+            </select>
+          </label>
+          <label>
+            Valoriza&ccedil;&atilde;o anual
+            <input id="simReturn" inputmode="decimal" value="6" />
+          </label>
+          <label>
+            Prazo
+            <input id="simYears" type="number" min="1" max="50" value="20" />
+          </label>
+        </form>
+
+        <section class="balance-panel sim-panel">
+          <p>Valor estimado</p>
+          <strong id="simFinal">0,00 &euro;</strong>
+          <div class="summary-grid two">
+            <article>
+              <span>Investido</span>
+              <strong id="simInvested">0,00 &euro;</strong>
+            </article>
+            <article>
+              <span>Juros</span>
+              <strong id="simInterest">0,00 &euro;</strong>
+            </article>
+          </div>
+        </section>
+
+        <section class="panel chart-panel" aria-label="Crescimento potencial do investimento">
+          <div class="section-head">
+            <h2>Crescimento potencial</h2>
+          </div>
+          <canvas id="investmentChart" height="210"></canvas>
+        </section>
+      </section>
+
+      <dialog id="movementDialog" class="movement-dialog">
+        <form id="movementForm" method="dialog" class="movement-form">
+          <div class="dialog-head">
+            <div>
+              <p class="overline">Registo r&aacute;pido</p>
+              <h2 id="movementDialogTitle">Nova despesa</h2>
+            </div>
+            <button id="closeMovement" class="icon-button" type="button" aria-label="Fechar">×</button>
+          </div>
+
+          <div class="segmented" role="group" aria-label="Tipo de movimento">
+            <button class="active" data-type="expense" type="button">Despesa</button>
+            <button data-type="income" type="button">Receita</button>
+          </div>
+
+          <label id="fixedPresetWrap">
+            Usar despesa fixa
+            <select id="fixedPresetSelect">
+              <option value="">Escolher modelo guardado</option>
+            </select>
+          </label>
+
+          <label>
+            Valor
+            <input id="amount" inputmode="decimal" placeholder="0,00" required />
+          </label>
+
+          <label>
+            Categoria
+            <select id="category"></select>
+          </label>
+
+          <div id="categoryChips" class="chips" aria-label="Categorias r&aacute;pidas"></div>
+
+          <label>
+            Descri&ccedil;&atilde;o
+            <input id="description" autocomplete="off" placeholder="Ex.: Continente, renda, ordenado" />
+          </label>
+
+          <label>
+            Data
+            <input id="date" type="date" required />
+          </label>
+
+          <button class="primary-button" id="saveMovement" type="submit">Guardar</button>
+        </form>
+      </dialog>
+
+      <nav class="bottom-nav" aria-label="Navega&ccedil;&atilde;o principal">
+        <button class="active" data-view-target="dashboard" type="button">
+          <span aria-hidden="true">⌂</span>
+          <strong>Resumo</strong>
+        </button>
+        <button data-view-target="transactions" type="button">
+          <span aria-hidden="true">≡</span>
+          <strong>Mov.</strong>
+        </button>
+        <button data-view-target="fixed" type="button">
+          <span aria-hidden="true">□</span>
+          <strong>Fixas</strong>
+        </button>
+        <button data-view-target="worth" type="button">
+          <span aria-hidden="true">€</span>
+          <strong>Patrim.</strong>
+        </button>
+        <button data-view-target="simulator" type="button">
+          <span aria-hidden="true">%</span>
+          <strong>Sim.</strong>
+        </button>
+      </nav>
+    </main>
+
+    <script src="script.js"></script>
+  </body>
+</html>

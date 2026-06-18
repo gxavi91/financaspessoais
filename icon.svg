@@ -1,0 +1,6 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" role="img" aria-label="Farol">
+  <rect width="512" height="512" rx="96" fill="#111412"/>
+  <path d="M126 358h260v48H126z" fill="#79d68a"/>
+  <path d="M154 126h204v54H212v68h124v52H212v106h-58z" fill="#f2f4ed"/>
+  <path d="M316 126h42v280h-42z" fill="#e4b85e"/>
+</svg>
