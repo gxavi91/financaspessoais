@@ -63,6 +63,7 @@ body {
   margin: 0;
   background: linear-gradient(180deg, var(--bg), var(--page));
   color: var(--text);
+  font-weight: 400;
   overscroll-behavior: none;
   touch-action: manipulation;
 }
@@ -139,7 +140,7 @@ p {
   border-radius: 8px;
   background: var(--surface);
   color: var(--success);
-  font-weight: 900;
+  font-weight: 700;
   overflow: hidden;
 }
 
@@ -160,13 +161,14 @@ p {
 
 .brand strong {
   font-size: 1rem;
+  font-weight: 650;
 }
 
 .brand small {
   margin-top: 1px;
   color: var(--muted);
   font-size: 0.74rem;
-  font-weight: 700;
+  font-weight: 500;
 }
 
 .top-actions {
@@ -185,7 +187,7 @@ p {
   background: var(--surface);
   color: var(--text);
   font-size: 1rem;
-  font-weight: 900;
+  font-weight: 650;
 }
 
 .file-button {
@@ -235,7 +237,7 @@ p {
   margin-bottom: 4px;
   color: var(--muted);
   font-size: 0.72rem;
-  font-weight: 900;
+  font-weight: 650;
   letter-spacing: 0;
   text-transform: uppercase;
 }
@@ -243,6 +245,7 @@ p {
 h1 {
   margin-bottom: 0;
   font-size: 1.45rem;
+  font-weight: 650;
   line-height: 1.15;
   letter-spacing: 0;
 }
@@ -251,7 +254,7 @@ h2 {
   margin-bottom: 0;
   color: var(--muted);
   font-size: 0.76rem;
-  font-weight: 900;
+  font-weight: 650;
   letter-spacing: 0;
   text-transform: uppercase;
 }
@@ -280,7 +283,7 @@ label {
   gap: 7px;
   color: var(--muted);
   font-size: 0.74rem;
-  font-weight: 900;
+  font-weight: 650;
   letter-spacing: 0;
   text-transform: uppercase;
 }
@@ -288,7 +291,7 @@ label {
 .field-label {
   color: var(--muted);
   font-size: 0.74rem;
-  font-weight: 900;
+  font-weight: 650;
   letter-spacing: 0;
   text-transform: uppercase;
 }
@@ -313,7 +316,7 @@ label {
   margin-bottom: 7px;
   color: var(--muted);
   font-size: 0.78rem;
-  font-weight: 900;
+  font-weight: 650;
   text-transform: uppercase;
 }
 
@@ -321,6 +324,7 @@ label {
   display: block;
   margin-bottom: 18px;
   font-size: 2.2rem;
+  font-weight: 650;
   line-height: 1.05;
   font-variant-numeric: tabular-nums;
 }
@@ -348,7 +352,7 @@ label {
   margin-bottom: 4px;
   color: var(--muted);
   font-size: 0.68rem;
-  font-weight: 900;
+  font-weight: 650;
   text-transform: uppercase;
 }
 
@@ -356,6 +360,7 @@ label {
   display: block;
   overflow-wrap: anywhere;
   font-size: 0.98rem;
+  font-weight: 650;
   font-variant-numeric: tabular-nums;
 }
 
@@ -374,7 +379,7 @@ label {
   background: var(--text);
   color: var(--bg);
   padding: 0 14px;
-  font-weight: 900;
+  font-weight: 700;
 }
 
 .primary-button.danger {
@@ -419,7 +424,7 @@ label {
   align-items: center;
   color: var(--muted);
   font-size: 0.72rem;
-  font-weight: 800;
+  font-weight: 500;
 }
 
 .dot {
@@ -490,7 +495,7 @@ label {
   border-radius: 8px;
   background: var(--blue-soft);
   color: var(--blue);
-  font-weight: 900;
+  font-weight: 700;
 }
 
 .insight-item strong,
@@ -498,6 +503,7 @@ label {
   display: block;
   margin-bottom: 2px;
   font-size: 0.9rem;
+  font-weight: 650;
 }
 
 .insight-item p,
@@ -540,6 +546,7 @@ label {
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
+  font-weight: 600;
 }
 
 .category-meta span,
@@ -594,6 +601,7 @@ label {
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
+  font-weight: 600;
 }
 
 .transaction-title span {
@@ -604,7 +612,7 @@ label {
 }
 
 .amount {
-  font-weight: 900;
+  font-weight: 700;
   white-space: nowrap;
   font-variant-numeric: tabular-nums;
 }
@@ -628,7 +636,7 @@ label {
   color: var(--muted);
   padding: 0 10px;
   font-size: 0.76rem;
-  font-weight: 900;
+  font-weight: 650;
 }
 
 .use-button {
@@ -725,7 +733,7 @@ label {
   margin: 0;
   color: var(--muted);
   font-size: 0.76rem;
-  font-weight: 900;
+  font-weight: 650;
   letter-spacing: 0;
   text-transform: uppercase;
 }
@@ -748,7 +756,7 @@ label {
   background: var(--surface);
   color: var(--success);
   font-size: 1.25rem;
-  font-weight: 900;
+  font-weight: 700;
 }
 
 .logo-actions,
@@ -773,7 +781,7 @@ label {
   color: var(--text);
   padding: 0 12px;
   font-size: 0.82rem;
-  font-weight: 900;
+  font-weight: 650;
   text-transform: none;
 }
 
@@ -836,7 +844,7 @@ label {
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
-  font-weight: 800;
+  font-weight: 600;
 }
 
 .custom-category-item button {
@@ -847,7 +855,7 @@ label {
   color: var(--muted);
   padding: 0 9px;
   font-size: 0.76rem;
-  font-weight: 900;
+  font-weight: 650;
 }
 
 .movement-dialog::backdrop {
@@ -871,6 +879,7 @@ label {
 .dialog-head h2 {
   color: var(--text);
   font-size: 1.15rem;
+  font-weight: 650;
   text-transform: none;
 }
 
@@ -889,7 +898,7 @@ label {
   border-radius: 6px;
   background: transparent;
   color: var(--muted);
-  font-weight: 900;
+  font-weight: 650;
 }
 
 .segmented .active[data-type="expense"] {
@@ -943,7 +952,7 @@ label {
   color: var(--text);
   padding: 0 10px;
   font-size: 0.86rem;
-  font-weight: 900;
+  font-weight: 650;
 }
 
 .chip.active {
@@ -992,6 +1001,7 @@ label {
   text-overflow: ellipsis;
   white-space: nowrap;
   font-size: 0.62rem;
+  font-weight: 600;
   letter-spacing: 0;
   text-transform: uppercase;
 }
